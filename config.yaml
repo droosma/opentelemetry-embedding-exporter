@@ -9,20 +9,26 @@ processors:
   
 exporters:
   embeddingexporter:
+    verbosity: detailed
+    embedding:
+      key: ""
+      endpoint: "https://rg-openai-sandbox.openai.azure.com/"
   logging:
     verbosity: detailed
 
 service:
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [logging, embeddingexporter]
-    metrics:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [logging, embeddingexporter]
+    # traces:
+    #   receivers: [otlp]
+    #   processors: [batch]
+    #   exporters: [embeddingexporter]
+    # metrics:
+    #   receivers: [otlp]
+    #   processors: [batch]
+    #   exporters: [embeddingexporter]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, embeddingexporter]
+      exporters: 
+        - embeddingexporter
+        #- logging

@@ -1,1 +1,0 @@
-/tmp/dist/otelcol-custom --config=config.yaml

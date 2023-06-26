@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/config/configtelemetry"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
@@ -24,14 +25,17 @@ func NewFactory() exporter.Factory {
 }
 
 func createDefaultConfig() component.Config {
-	return NewConfig()
+	return &Config{
+		Verbosity: configtelemetry.LevelNormal,
+	}
 }
 
 func createTracesExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Traces, error) {
 	cfg := config.(*Config)
-	s := newEmbeddingExporter()
+	e := createEmbeddings(cfg.Embedding)
+	x := newEmbeddingExporter(e)
 	return exporterhelper.NewTracesExporter(ctx, set, cfg,
-		s.pushTraces,
+		x.pushTraces,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
 		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 0}),
 		exporterhelper.WithRetry(exporterhelper.RetrySettings{Enabled: false}),
@@ -41,9 +45,10 @@ func createTracesExporter(ctx context.Context, set exporter.CreateSettings, conf
 
 func createMetricsExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Metrics, error) {
 	cfg := config.(*Config)
-	s := newEmbeddingExporter()
+	e := createEmbeddings(cfg.Embedding)
+	x := newEmbeddingExporter(e)
 	return exporterhelper.NewMetricsExporter(ctx, set, cfg,
-		s.pushMetrics,
+		x.pushMetrics,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
 		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 0}),
 		exporterhelper.WithRetry(exporterhelper.RetrySettings{Enabled: false}),
@@ -53,12 +58,17 @@ func createMetricsExporter(ctx context.Context, set exporter.CreateSettings, con
 
 func createLogsExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Logs, error) {
 	cfg := config.(*Config)
-	s := newEmbeddingExporter()
+	e := createEmbeddings(cfg.Embedding)
+	x := newEmbeddingExporter(e)
 	return exporterhelper.NewLogsExporter(ctx, set, cfg,
-		s.pushLogs,
+		x.pushLogs,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
 		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 0}),
 		exporterhelper.WithRetry(exporterhelper.RetrySettings{Enabled: false}),
 		exporterhelper.WithQueue(exporterhelper.QueueSettings{Enabled: false}),
 	)
+}
+
+func createEmbeddings(config EmbeddingConfig) embedding {
+	return NewOpenAiEmbedder(config.Key, config.Endpoint, config.Version)
 }

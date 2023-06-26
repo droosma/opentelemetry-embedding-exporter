@@ -14,23 +14,20 @@ type OpenAiEmbedder struct {
 	client *openai.Client
 }
 
-func NewOpenAiEmbedder(key string,
-	baseUri string,
-	version ...string) *OpenAiEmbedder {
-	v := "2023-05-15"
-	if len(version) > 0 {
-		v = version[0]
+func NewOpenAiEmbedder(key string, baseUri string, version string) *OpenAiEmbedder {
+	if version == "" {
+		version = "2023-05-15"
 	}
 
 	config := openai.DefaultAzureConfig(key, baseUri)
-	config.APIVersion = v
-
-	// config.AzureModelMapperFunc = func(model string) string {
-	//    azureModelMapping = map[string]string{
-	//        "gpt-3.5-turbo":"your gpt-3.5-turbo deployment name",
-	//    }
-	//    return azureModelMapping[model]
-	// }
+	config.APIVersion = version
+	config.AzureModelMapperFunc = func(model string) string {
+		azureModelMapping := map[string]string{
+			"gpt-3.5-turbo":          "turbo",
+			"text-embedding-ada-002": "embedding",
+		}
+		return azureModelMapping[model]
+	}
 	return &OpenAiEmbedder{client: openai.NewClientWithConfig(config)}
 }
 

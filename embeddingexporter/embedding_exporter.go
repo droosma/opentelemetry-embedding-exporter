@@ -2,6 +2,7 @@ package embeddingexporter
 
 import (
 	"context"
+	"fmt"
 
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.opentelemetry.io/collector/pdata/pmetric"
@@ -9,21 +10,12 @@ import (
 )
 
 type embeddingExporter struct {
-	// logsMarshaler    plog.Marshaler
-	// metricsMarshaler pmetric.Marshaler
-	// tracesMarshaler  ptrace.Marshaler
 	embedding embedding
 }
 
-func newEmbeddingExporter() *embeddingExporter {
-	//don't know how to get this from actual config
-	config := NewConfig()
-
+func newEmbeddingExporter(e embedding) *embeddingExporter {
 	return &embeddingExporter{
-		// logsMarshaler:    otlptext.NewTextLogsMarshaler(),
-		// metricsMarshaler: otlptext.NewTextMetricsMarshaler(),
-		// tracesMarshaler:  otlptext.NewTextTracesMarshaler(),
-		embedding: NewOpenAiEmbedder(config.OpenAiKey, config.OpenAiUri, config.OpenAiVersion),
+		embedding: e,
 	}
 }
 
@@ -49,16 +41,18 @@ func (s *embeddingExporter) pushLogs(_ context.Context, ld plog.Logs) error {
 			logs := ils.LogRecords()
 			for k := 0; k < logs.Len(); k++ {
 				lr := logs.At(k)
-				input += lr.Body().AsString()
+				input += " " + lr.Body().AsString() + " "
 			}
 		}
 	}
 
-	//embedding, err := s.embedding.Embed(input)
+	embedding, err := s.embedding.Embed(input)
 
-	// if err != nil {
-	// 	return err
-	// }
+	if err != nil {
+		return err
+	}
+
+	fmt.Print(embedding)
 
 	//TODO store the embeddings
 
