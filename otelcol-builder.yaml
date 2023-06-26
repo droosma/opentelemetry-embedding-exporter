@@ -3,12 +3,12 @@ dist:
   description: Local OpenTelemetry Collector binary
   output_path: /tmp/dist
   otelcol_version: 0.80.0
+  debug_compilation: true
 exporters:
   - gomod: go.opentelemetry.io/collector/exporter/loggingexporter v0.80.0
   - gomod: "github.com/droosma/embeddingexporter v0.0.1"
     import: "github.com/droosma/embeddingexporter"
     path: embeddingexporter
-    name: embeddingexporter
 
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.80.0

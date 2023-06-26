@@ -1,0 +1,1 @@
+builder --config=otelcol-builder.yaml

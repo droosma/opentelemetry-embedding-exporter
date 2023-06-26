@@ -1,0 +1,28 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+      grpc:
+
+processors:
+  batch:
+  
+exporters:
+  embeddingexporter:
+  logging:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, embeddingexporter]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, embeddingexporter]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging, embeddingexporter]
