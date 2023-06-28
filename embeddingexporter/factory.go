@@ -71,7 +71,7 @@ func (c *container) createMetricsExporter(
 	config component.Config) (exporter.Metrics, error) {
 	cfg := config.(*Config)
 	c.initialize(cfg)
-	x := newEmbeddingExporter(c.embedding, c.persistence)
+	x := newEmbeddingMetricsExporter(c.embedding, c.persistence)
 	return exporterhelper.NewMetricsExporter(ctx, set, cfg,
 		x.pushMetrics,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
