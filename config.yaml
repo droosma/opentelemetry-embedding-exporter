@@ -13,6 +13,10 @@ exporters:
     embedding:
       key: ""
       endpoint: "https://rg-openai-sandbox.openai.azure.com/"
+    persistence:
+      host     : "localhost"
+      port     : "6969"
+      password : "toeter"
   logging:
     verbosity: detailed
 

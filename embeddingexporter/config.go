@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	Verbosity configtelemetry.Level `mapstructure:"verbosity,omitempty"`
-	Embedding EmbeddingConfig       `mapstructure:"embedding"`
+	Verbosity   configtelemetry.Level `mapstructure:"verbosity,omitempty"`
+	Embedding   EmbeddingConfig       `mapstructure:"embedding"`
+	Persistence PersistenceConfig     `mapstructure:"persistence"`
 }
 
 type EmbeddingConfig struct {
@@ -17,15 +18,11 @@ type EmbeddingConfig struct {
 	Version  string `mapstructure:"version"`
 }
 
-func NewConfig() Config {
-	return Config{
-		Verbosity: configtelemetry.LevelNormal,
-		Embedding: EmbeddingConfig{
-			Version:  "2023-05-15",
-			Key:      "5c8e2b1c28414c5183185154c66c1242",
-			Endpoint: "https://rg-openai-sandbox.openai.azure.com/",
-		},
-	}
+type PersistenceConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     string `mapstructure:"port"`
+	Password string `mapstructure:"password"`
+	Database int    `mapstructure:"database"`
 }
 
 func (cfg *Config) Validate() error {
@@ -35,5 +32,16 @@ func (cfg *Config) Validate() error {
 	if cfg.Embedding.Key == "" {
 		return fmt.Errorf("embedding key is required")
 	}
+
+	if cfg.Persistence.Host == "" {
+		return fmt.Errorf("persistence host is required")
+	}
+	if cfg.Persistence.Port == "" {
+		return fmt.Errorf("persistence port is required")
+	}
+	if cfg.Persistence.Password == "" {
+		return fmt.Errorf("persistence password is required")
+	}
+
 	return nil
 }

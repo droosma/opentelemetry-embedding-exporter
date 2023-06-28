@@ -11,12 +11,14 @@ import (
 )
 
 type embeddingExporter struct {
-	embedding embedding
+	embedding   embedding
+	persistence persistence
 }
 
-func newEmbeddingExporter(e embedding) *embeddingExporter {
+func newEmbeddingExporter(e embedding, p persistence) *embeddingExporter {
 	return &embeddingExporter{
-		embedding: e,
+		embedding:   e,
+		persistence: p,
 	}
 }
 
@@ -38,19 +40,37 @@ type logEntry struct {
 	SpanId    string
 }
 
+type logEntryWithEmbedding struct {
+	logEntry  logEntry
+	embedding []float32
+}
+
+func (e logEntry) toLogEntryWithEmbedding(embedding []float32) logEntryWithEmbedding {
+	return logEntryWithEmbedding{
+		logEntry:  e,
+		embedding: embedding,
+	}
+}
+
 func (s *embeddingExporter) pushLogs(_ context.Context, ld plog.Logs) error {
 	entries := extractLogEntries(ld)
-	_, errors := s.processLogEntries(entries)
+	embeddings, embeddingsErrors := s.generateEmbeddingForLogEntries(entries)
 
-	if errors != nil {
-		return errors[0]
+	if embeddingsErrors != nil {
+		return embeddingsErrors[0]
+	}
+
+	persistenceErrors := s.persistEmbeddings(embeddings)
+
+	if persistenceErrors != nil {
+		return persistenceErrors[0]
 	}
 
 	return nil
 }
 
-func (s *embeddingExporter) processLogEntries(entries []logEntry) ([]float32, []error) {
-	successesChan := make(chan []float32, len(entries))
+func (s *embeddingExporter) generateEmbeddingForLogEntries(entries []logEntry) ([]logEntryWithEmbedding, []error) {
+	successesChan := make(chan logEntryWithEmbedding, len(entries))
 	errorsChan := make(chan error, len(entries))
 
 	var wg sync.WaitGroup
@@ -67,7 +87,8 @@ func (s *embeddingExporter) processLogEntries(entries []logEntry) ([]float32, []
 				return
 			}
 
-			successesChan <- embedding
+			logEntry := entry.toLogEntryWithEmbedding(embedding)
+			successesChan <- logEntry
 		}(entry)
 	}
 
@@ -76,9 +97,9 @@ func (s *embeddingExporter) processLogEntries(entries []logEntry) ([]float32, []
 	close(successesChan)
 	close(errorsChan)
 
-	var successes []float32
+	var successes []logEntryWithEmbedding
 	for success := range successesChan {
-		successes = append(successes, success...)
+		successes = append(successes, success)
 	}
 
 	var errors []error
@@ -87,6 +108,38 @@ func (s *embeddingExporter) processLogEntries(entries []logEntry) ([]float32, []
 	}
 
 	return successes, errors
+}
+
+func (s *embeddingExporter) persistEmbeddings(embeddings []logEntryWithEmbedding) []error {
+	errorsChan := make(chan error, len(embeddings))
+
+	var wg sync.WaitGroup
+
+	for _, entry := range embeddings {
+		wg.Add(1)
+
+		go func(entry logEntryWithEmbedding) {
+			defer wg.Done()
+
+			err := s.persistence.Persist(entry)
+			if err != nil {
+				errorsChan <- err
+				return
+			}
+
+		}(entry)
+	}
+
+	wg.Wait()
+
+	close(errorsChan)
+
+	var errors []error
+	for err := range errorsChan {
+		errors = append(errors, err)
+	}
+
+	return errors
 }
 
 func extractLogEntries(ld plog.Logs) []logEntry {

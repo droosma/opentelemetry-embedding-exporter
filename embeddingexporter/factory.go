@@ -33,7 +33,8 @@ func createDefaultConfig() component.Config {
 func createTracesExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Traces, error) {
 	cfg := config.(*Config)
 	e := createEmbeddings(cfg.Embedding)
-	x := newEmbeddingExporter(e)
+	p := createPersistences(cfg.Persistence)
+	x := newEmbeddingExporter(e, p)
 	return exporterhelper.NewTracesExporter(ctx, set, cfg,
 		x.pushTraces,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
@@ -46,7 +47,8 @@ func createTracesExporter(ctx context.Context, set exporter.CreateSettings, conf
 func createMetricsExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Metrics, error) {
 	cfg := config.(*Config)
 	e := createEmbeddings(cfg.Embedding)
-	x := newEmbeddingExporter(e)
+	p := createPersistences(cfg.Persistence)
+	x := newEmbeddingExporter(e, p)
 	return exporterhelper.NewMetricsExporter(ctx, set, cfg,
 		x.pushMetrics,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
@@ -59,7 +61,8 @@ func createMetricsExporter(ctx context.Context, set exporter.CreateSettings, con
 func createLogsExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Logs, error) {
 	cfg := config.(*Config)
 	e := createEmbeddings(cfg.Embedding)
-	x := newEmbeddingExporter(e)
+	p := createPersistences(cfg.Persistence)
+	x := newEmbeddingExporter(e, p)
 	return exporterhelper.NewLogsExporter(ctx, set, cfg,
 		x.pushLogs,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
@@ -67,6 +70,10 @@ func createLogsExporter(ctx context.Context, set exporter.CreateSettings, config
 		exporterhelper.WithRetry(exporterhelper.RetrySettings{Enabled: false}),
 		exporterhelper.WithQueue(exporterhelper.QueueSettings{Enabled: false}),
 	)
+}
+
+func createPersistences(config PersistenceConfig) persistence {
+	return NewRedisPersistence(config.Host+":"+config.Port, config.Password, config.Database)
 }
 
 func createEmbeddings(config EmbeddingConfig) embedding {
