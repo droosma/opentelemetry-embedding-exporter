@@ -1,9 +1,5 @@
 package embeddingexporter
 
-import (
-	"encoding/json"
-)
-
 type Properties map[string]interface{}
 
 func (p *Properties) AddEmbedding(embedding Embedding) error {
@@ -18,8 +14,8 @@ func (p *Properties) AddEmbedding(embedding Embedding) error {
 	return nil
 }
 
-func (p *Properties) AddAttributes(attributes map[string]any) error {
-	attributesJson, err := json.Marshal(attributes)
+func (p *Properties) AddAttributes(attributes Attributes) error {
+	attributesJson, err := attributes.AsJson()
 	if err != nil {
 		return err
 	}

@@ -45,7 +45,7 @@ type traceEntry struct {
 	kind       string
 	start      time.Time
 	end        time.Time
-	attributes map[string]any
+	attributes Attributes
 	status     string
 	message    string
 	TraceId    string
@@ -66,6 +66,11 @@ func (e traceEntry) embeddingBody() string {
 	builder.WriteString(e.kind + " ")
 	builder.WriteString(e.status + " ")
 	builder.WriteString(e.message + " ")
+
+	attrString, err := e.attributes.AsString()
+	if err == nil {
+		builder.WriteString(attrString)
+	}
 
 	return builder.String()
 }

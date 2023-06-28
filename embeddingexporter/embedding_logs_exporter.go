@@ -3,6 +3,7 @@ package embeddingexporter
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -52,7 +53,7 @@ type logEntry struct {
 	timestamp  time.Time
 	TraceId    string
 	SpanId     string
-	attributes map[string]any
+	attributes Attributes
 }
 
 type logEntryWithEmbedding struct {
@@ -157,7 +158,17 @@ func (s *embeddingLogsExporter) persistEmbeddings(embeddings []logEntryWithEmbed
 }
 
 func (e logEntry) embeddingBody() string {
-	return e.level + " " + e.body
+	var builder strings.Builder
+
+	builder.WriteString(e.level + " ")
+	builder.WriteString(e.body + " ")
+
+	attrString, err := e.attributes.AsString()
+	if err == nil {
+		builder.WriteString(attrString)
+	}
+
+	return builder.String()
 }
 
 func extractLogEntries(ld plog.Logs) []logEntry {
