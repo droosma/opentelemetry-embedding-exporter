@@ -67,9 +67,17 @@ func (c *container) createTracesExporter(
 	return exporterhelper.NewTracesExporter(ctx, set, cfg,
 		x.pushTraces,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
-		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 0}),
-		exporterhelper.WithRetry(exporterhelper.RetrySettings{Enabled: false}),
-		exporterhelper.WithQueue(exporterhelper.QueueSettings{Enabled: false}),
+		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 5}),
+		exporterhelper.WithRetry(exporterhelper.RetrySettings{
+			Enabled:         true,
+			InitialInterval: 5,
+			MaxInterval:     30,
+		}),
+		exporterhelper.WithQueue(exporterhelper.QueueSettings{
+			Enabled:      true,
+			QueueSize:    1000,
+			NumConsumers: 10,
+		}),
 	)
 }
 
@@ -83,9 +91,17 @@ func (c *container) createMetricsExporter(
 	return exporterhelper.NewMetricsExporter(ctx, set, cfg,
 		x.pushMetrics,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
-		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 0}),
-		exporterhelper.WithRetry(exporterhelper.RetrySettings{Enabled: false}),
-		exporterhelper.WithQueue(exporterhelper.QueueSettings{Enabled: false}),
+		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 5}),
+		exporterhelper.WithRetry(exporterhelper.RetrySettings{
+			Enabled:         true,
+			InitialInterval: 5,
+			MaxInterval:     30,
+		}),
+		exporterhelper.WithQueue(exporterhelper.QueueSettings{
+			Enabled:      true,
+			QueueSize:    1000,
+			NumConsumers: 10,
+		}),
 	)
 }
 
@@ -99,8 +115,16 @@ func (c *container) createLogsExporter(
 	return exporterhelper.NewLogsExporter(ctx, set, cfg,
 		x.pushLogs,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
-		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 0}),
-		exporterhelper.WithRetry(exporterhelper.RetrySettings{Enabled: false}),
-		exporterhelper.WithQueue(exporterhelper.QueueSettings{Enabled: false}),
+		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 5}),
+		exporterhelper.WithRetry(exporterhelper.RetrySettings{
+			Enabled:         true,
+			InitialInterval: 5,
+			MaxInterval:     30,
+		}),
+		exporterhelper.WithQueue(exporterhelper.QueueSettings{
+			Enabled:      true,
+			QueueSize:    1000,
+			NumConsumers: 10,
+		}),
 	)
 }
