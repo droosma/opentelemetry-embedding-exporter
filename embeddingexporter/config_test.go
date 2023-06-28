@@ -75,13 +75,3 @@ func TestConfig_Validate_Persistence_Port(t *testing.T) {
 		t.Errorf("Expected error for missing Persistence.Port, got nil")
 	}
 }
-
-func TestConfig_Validate_Persistence_Password(t *testing.T) {
-	cfg := validConfig()
-	cfg.Persistence.Password = ""
-
-	err := cfg.Validate()
-	if err == nil {
-		t.Errorf("Expected error for missing Persistence.Password, got nil")
-	}
-}

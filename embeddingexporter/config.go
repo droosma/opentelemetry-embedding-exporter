@@ -40,9 +40,6 @@ func (cfg *Config) Validate() error {
 	if cfg.Persistence.Port == "" {
 		return fmt.Errorf("persistence port is required")
 	}
-	if cfg.Persistence.Password == "" {
-		return fmt.Errorf("persistence password is required")
-	}
 
 	return nil
 }

@@ -3,6 +3,7 @@ module github.com/droosma/embeddingexporter
 go 1.20
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/sashabaranov/go-openai v1.12.0
 	go.opentelemetry.io/collector/component v0.80.0
