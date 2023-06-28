@@ -26,8 +26,16 @@ func (c *container) initialize(cfg *Config) {
 	defer c.mu.Unlock()
 
 	if c.embedding == nil && c.persistence == nil {
-		c.embedding = createEmbeddings(cfg.Embedding)
-		c.persistence = createPersistences(cfg.Persistence)
+		persistence := func(config PersistenceConfig) persistence {
+			return NewRedisPersistence(config.Host, config.Port, config.Password, config.Database)
+		}
+
+		embedding := func(config EmbeddingConfig) embedding {
+			return NewOpenAiEmbedder(config.Key, config.Endpoint, config.ModelMapping, config.Version)
+		}
+
+		c.embedding = embedding(cfg.Embedding)
+		c.persistence = persistence(cfg.Persistence)
 	}
 }
 
@@ -95,12 +103,4 @@ func (c *container) createLogsExporter(
 		exporterhelper.WithRetry(exporterhelper.RetrySettings{Enabled: false}),
 		exporterhelper.WithQueue(exporterhelper.QueueSettings{Enabled: false}),
 	)
-}
-
-func createPersistences(config PersistenceConfig) persistence {
-	return NewRedisPersistence(config.Host, config.Port, config.Password, config.Database)
-}
-
-func createEmbeddings(config EmbeddingConfig) embedding {
-	return NewOpenAiEmbedder(config.Key, config.Endpoint, config.ModelMapping, config.Version)
 }
