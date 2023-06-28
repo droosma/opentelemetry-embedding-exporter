@@ -2,9 +2,11 @@ package embeddingexporter
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"go.opentelemetry.io/collector/pdata/plog"
 )
 
@@ -45,11 +47,12 @@ func (e logEntry) toLogEntryWithEmbedding(embedding []float32) logEntryWithEmbed
 }
 
 type logEntry struct {
-	body      string
-	level     string
-	timestamp time.Time
-	TraceId   string
-	SpanId    string
+	body       string
+	level      string
+	timestamp  time.Time
+	TraceId    string
+	SpanId     string
+	attributes map[string]any
 }
 
 type logEntryWithEmbedding struct {
@@ -109,7 +112,30 @@ func (s *embeddingLogsExporter) persistEmbeddings(embeddings []logEntryWithEmbed
 		go func(entry logEntryWithEmbedding) {
 			defer wg.Done()
 
-			err := s.persistence.Persist(entry)
+			key := fmt.Sprintf("log_%s_%s_%s",
+				entry.logEntry.level,
+				entry.logEntry.TraceId,
+				uuid.New().String())
+
+			properties := Properties{
+				"timestamp": entry.logEntry.timestamp.Unix(),
+				"body":      entry.logEntry.body,
+				"level":     entry.logEntry.level,
+				"traceId":   entry.logEntry.TraceId,
+				"spanId":    entry.logEntry.SpanId,
+			}
+			err := properties.AddEmbedding(entry.embedding)
+			if err != nil {
+				errorsChan <- err
+				return
+			}
+			err = properties.AddAttributes(entry.logEntry.attributes)
+			if err != nil {
+				errorsChan <- err
+				return
+			}
+
+			err = s.persistence.Persist(key, properties)
 			if err != nil {
 				errorsChan <- err
 				return
@@ -139,11 +165,12 @@ func extractLogEntries(ld plog.Logs) []logEntry {
 			for k := 0; k < ils.LogRecords().Len(); k++ {
 				lr := ils.LogRecords().At(k)
 				entries = append(entries, logEntry{
-					body:      lr.Body().AsString(),
-					level:     lr.SeverityText(),
-					timestamp: lr.Timestamp().AsTime(),
-					TraceId:   lr.TraceID().String(),
-					SpanId:    lr.SpanID().String(),
+					body:       lr.Body().AsString(),
+					level:      lr.SeverityText(),
+					timestamp:  lr.Timestamp().AsTime(),
+					TraceId:    lr.TraceID().String(),
+					SpanId:     lr.SpanID().String(),
+					attributes: lr.Attributes().AsRaw(),
 				})
 			}
 		}
