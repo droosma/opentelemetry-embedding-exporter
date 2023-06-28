@@ -62,7 +62,7 @@ func createLogsExporter(ctx context.Context, set exporter.CreateSettings, config
 	cfg := config.(*Config)
 	e := createEmbeddings(cfg.Embedding)
 	p := createPersistences(cfg.Persistence)
-	x := newEmbeddingExporter(e, p)
+	x := newEmbeddingLogsExporter(e, p)
 	return exporterhelper.NewLogsExporter(ctx, set, cfg,
 		x.pushLogs,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
