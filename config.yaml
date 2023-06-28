@@ -13,6 +13,9 @@ exporters:
     embedding:
       key: ""
       endpoint: "https://rg-openai-sandbox.openai.azure.com/"
+      model_mapping:
+        gpt-3.5-turbo: "turbo"
+        text-embedding-ada-002: "embedding"
     persistence:
       host     : "localhost"
       port     : "6969"

@@ -13,9 +13,10 @@ type Config struct {
 }
 
 type EmbeddingConfig struct {
-	Endpoint string `mapstructure:"endpoint"`
-	Key      string `mapstructure:"key"`
-	Version  string `mapstructure:"version"`
+	Endpoint     string            `mapstructure:"endpoint"`
+	Key          string            `mapstructure:"key"`
+	Version      string            `mapstructure:"version"`
+	ModelMapping map[string]string `mapstructure:"model_mapping"`
 }
 
 type PersistenceConfig struct {
