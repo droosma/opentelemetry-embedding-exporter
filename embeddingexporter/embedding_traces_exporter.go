@@ -11,11 +11,11 @@ import (
 )
 
 type embeddingTracesExporter struct {
-	embedding   embedding
-	persistence persistence
+	embedding   Embeddings
+	persistence Persistence
 }
 
-func newEmbeddingTracesExporter(e embedding, p persistence) *embeddingTracesExporter {
+func newEmbeddingTracesExporter(e Embeddings, p Persistence) *embeddingTracesExporter {
 	return &embeddingTracesExporter{
 		embedding:   e,
 		persistence: p,
@@ -87,7 +87,7 @@ func (s *embeddingTracesExporter) generateEmbeddingForTraceEntries(entries []tra
 		go func(entry traceEntry) {
 			defer wg.Done()
 
-			embedding, err := s.embedding.Embed(entry.embeddingBody())
+			embedding, err := s.embedding.Generate(entry.embeddingBody())
 			if err != nil {
 				errorsChan <- err
 				return

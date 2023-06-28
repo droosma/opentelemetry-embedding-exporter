@@ -3,7 +3,6 @@ package embeddingexporter
 import (
 	"context"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -12,11 +11,11 @@ import (
 )
 
 type embeddingLogsExporter struct {
-	embedding   embedding
-	persistence persistence
+	embedding   Embeddings
+	persistence Persistence
 }
 
-func newEmbeddingLogsExporter(e embedding, p persistence) *embeddingLogsExporter {
+func newEmbeddingLogsExporter(e Embeddings, p Persistence) *embeddingLogsExporter {
 	return &embeddingLogsExporter{
 		embedding:   e,
 		persistence: p,
@@ -73,7 +72,7 @@ func (s *embeddingLogsExporter) generateEmbeddingForLogEntries(entries []logEntr
 		go func(entry logEntry) {
 			defer wg.Done()
 
-			embedding, err := s.embedding.Embed(entry.embeddingBody())
+			embedding, err := s.embedding.Generate(entry.embeddingBody())
 			if err != nil {
 				errorsChan <- err
 				return
@@ -158,12 +157,7 @@ func (s *embeddingLogsExporter) persistEmbeddings(embeddings []logEntryWithEmbed
 }
 
 func (e logEntry) embeddingBody() string {
-	var builder strings.Builder
-
-	builder.WriteString(e.body + " ")
-	builder.WriteString(e.level + " ")
-
-	return builder.String()
+	return e.level + " " + e.body
 }
 
 func extractLogEntries(ld plog.Logs) []logEntry {

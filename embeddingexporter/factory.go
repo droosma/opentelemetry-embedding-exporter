@@ -16,8 +16,8 @@ const (
 )
 
 type container struct {
-	embedding   embedding
-	persistence persistence
+	embedding   Embeddings
+	persistence Persistence
 	mu          sync.Mutex
 }
 
@@ -26,12 +26,12 @@ func (c *container) initialize(cfg *Config) {
 	defer c.mu.Unlock()
 
 	if c.embedding == nil && c.persistence == nil {
-		persistence := func(config PersistenceConfig) persistence {
+		persistence := func(config PersistenceConfig) Persistence {
 			return NewRedisPersistence(config.Host, config.Port, config.Password, config.Database)
 		}
 
-		embedding := func(config EmbeddingConfig) embedding {
-			return NewOpenAiEmbedder(config.Key, config.Endpoint, config.ModelMapping, config.Version)
+		embedding := func(config EmbeddingConfig) Embeddings {
+			return NewOpenAIEmbeddings(config.Key, config.Endpoint, config.ModelMapping, config.Version)
 		}
 
 		c.embedding = embedding(cfg.Embedding)
@@ -74,9 +74,8 @@ func (c *container) createTracesExporter(
 			MaxInterval:     30,
 		}),
 		exporterhelper.WithQueue(exporterhelper.QueueSettings{
-			Enabled:      true,
-			QueueSize:    1000,
-			NumConsumers: 10,
+			Enabled:   true,
+			QueueSize: 1000,
 		}),
 	)
 }
@@ -98,9 +97,8 @@ func (c *container) createMetricsExporter(
 			MaxInterval:     30,
 		}),
 		exporterhelper.WithQueue(exporterhelper.QueueSettings{
-			Enabled:      true,
-			QueueSize:    1000,
-			NumConsumers: 10,
+			Enabled:   true,
+			QueueSize: 1000,
 		}),
 	)
 }
@@ -122,9 +120,8 @@ func (c *container) createLogsExporter(
 			MaxInterval:     30,
 		}),
 		exporterhelper.WithQueue(exporterhelper.QueueSettings{
-			Enabled:      true,
-			QueueSize:    1000,
-			NumConsumers: 10,
+			Enabled:   true,
+			QueueSize: 1000,
 		}),
 	)
 }

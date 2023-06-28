@@ -10,8 +10,8 @@ import (
 )
 
 type embeddingMetricsExporter struct {
-	embedding   embedding
-	persistence persistence
+	embedding   Embeddings
+	persistence Persistence
 }
 
 type metricEntry struct {
@@ -33,7 +33,7 @@ func (e metricEntry) toMetricEntryWithEmbedding(embedding []float32) metricEntry
 	}
 }
 
-func newEmbeddingMetricsExporter(e embedding, p persistence) *embeddingMetricsExporter {
+func newEmbeddingMetricsExporter(e Embeddings, p Persistence) *embeddingMetricsExporter {
 	return &embeddingMetricsExporter{
 		embedding:   e,
 		persistence: p,
