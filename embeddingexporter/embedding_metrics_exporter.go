@@ -21,18 +21,6 @@ type metricEntry struct {
 	dataType    string
 }
 
-type metricEntryWithEmbedding struct {
-	metricEntry metricEntry
-	embedding   []float32
-}
-
-func (e metricEntry) toMetricEntryWithEmbedding(embedding []float32) metricEntryWithEmbedding {
-	return metricEntryWithEmbedding{
-		metricEntry: e,
-		embedding:   embedding,
-	}
-}
-
 func newEmbeddingMetricsExporter(e Embeddings, p Persistence) *embeddingMetricsExporter {
 	return &embeddingMetricsExporter{
 		embedding:   e,
