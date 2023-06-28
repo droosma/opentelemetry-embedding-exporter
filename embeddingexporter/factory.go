@@ -2,6 +2,7 @@ package embeddingexporter
 
 import (
 	"context"
+	"sync"
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/configtelemetry"
@@ -14,13 +15,31 @@ const (
 	typeStr = "embeddingexporter"
 )
 
+type container struct {
+	embedding   embedding
+	persistence persistence
+	mu          sync.Mutex
+}
+
+func (c *container) initialize(cfg *Config) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.embedding == nil && c.persistence == nil {
+		c.embedding = createEmbeddings(cfg.Embedding)
+		c.persistence = createPersistences(cfg.Persistence)
+	}
+}
+
 func NewFactory() exporter.Factory {
+	c := &container{}
+
 	return exporter.NewFactory(
 		typeStr,
 		createDefaultConfig,
-		exporter.WithTraces(createTracesExporter, component.StabilityLevelDevelopment),
-		exporter.WithMetrics(createMetricsExporter, component.StabilityLevelDevelopment),
-		exporter.WithLogs(createLogsExporter, component.StabilityLevelDevelopment),
+		exporter.WithTraces(c.createTracesExporter, component.StabilityLevelDevelopment),
+		exporter.WithMetrics(c.createMetricsExporter, component.StabilityLevelDevelopment),
+		exporter.WithLogs(c.createLogsExporter, component.StabilityLevelDevelopment),
 	)
 }
 
@@ -30,11 +49,13 @@ func createDefaultConfig() component.Config {
 	}
 }
 
-func createTracesExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Traces, error) {
+func (c *container) createTracesExporter(
+	ctx context.Context,
+	set exporter.CreateSettings,
+	config component.Config) (exporter.Traces, error) {
 	cfg := config.(*Config)
-	e := createEmbeddings(cfg.Embedding)
-	p := createPersistences(cfg.Persistence)
-	x := newEmbeddingExporter(e, p)
+	c.initialize(cfg)
+	x := newEmbeddingExporter(c.embedding, c.persistence)
 	return exporterhelper.NewTracesExporter(ctx, set, cfg,
 		x.pushTraces,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
@@ -44,11 +65,13 @@ func createTracesExporter(ctx context.Context, set exporter.CreateSettings, conf
 	)
 }
 
-func createMetricsExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Metrics, error) {
+func (c *container) createMetricsExporter(
+	ctx context.Context,
+	set exporter.CreateSettings,
+	config component.Config) (exporter.Metrics, error) {
 	cfg := config.(*Config)
-	e := createEmbeddings(cfg.Embedding)
-	p := createPersistences(cfg.Persistence)
-	x := newEmbeddingExporter(e, p)
+	c.initialize(cfg)
+	x := newEmbeddingExporter(c.embedding, c.persistence)
 	return exporterhelper.NewMetricsExporter(ctx, set, cfg,
 		x.pushMetrics,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
@@ -58,11 +81,13 @@ func createMetricsExporter(ctx context.Context, set exporter.CreateSettings, con
 	)
 }
 
-func createLogsExporter(ctx context.Context, set exporter.CreateSettings, config component.Config) (exporter.Logs, error) {
+func (c *container) createLogsExporter(
+	ctx context.Context,
+	set exporter.CreateSettings,
+	config component.Config) (exporter.Logs, error) {
 	cfg := config.(*Config)
-	e := createEmbeddings(cfg.Embedding)
-	p := createPersistences(cfg.Persistence)
-	x := newEmbeddingLogsExporter(e, p)
+	c.initialize(cfg)
+	x := newEmbeddingLogsExporter(c.embedding, c.persistence)
 	return exporterhelper.NewLogsExporter(ctx, set, cfg,
 		x.pushLogs,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
