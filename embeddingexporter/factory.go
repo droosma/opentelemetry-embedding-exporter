@@ -73,9 +73,9 @@ func createLogsExporter(ctx context.Context, set exporter.CreateSettings, config
 }
 
 func createPersistences(config PersistenceConfig) persistence {
-	return NewRedisPersistence(config.Host+":"+config.Port, config.Password, config.Database)
+	return NewRedisPersistence(config.Host, config.Port, config.Password, config.Database)
 }
 
 func createEmbeddings(config EmbeddingConfig) embedding {
-	return NewOpenAiEmbedder(config.Key, config.Endpoint, config.Version)
+	return NewOpenAiEmbedder(config.Key, config.Endpoint, config.ModelMapping, config.Version)
 }

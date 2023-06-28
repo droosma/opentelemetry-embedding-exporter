@@ -14,9 +14,9 @@ type RedisPersistence struct {
 	rdb *redis.Client
 }
 
-func NewRedisPersistence(address string, password string, database int) *RedisPersistence {
+func NewRedisPersistence(host string, port string, password string, database int) *RedisPersistence {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     address,
+		Addr:     host + ":" + port,
 		Password: password,
 		DB:       database,
 	})
