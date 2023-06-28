@@ -3,6 +3,7 @@ package embeddingexporter
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -72,7 +73,7 @@ func (s *embeddingLogsExporter) generateEmbeddingForLogEntries(entries []logEntr
 		go func(entry logEntry) {
 			defer wg.Done()
 
-			embedding, err := s.embedding.Embed(entry.body)
+			embedding, err := s.embedding.Embed(entry.embeddingBody())
 			if err != nil {
 				errorsChan <- err
 				return
@@ -154,6 +155,15 @@ func (s *embeddingLogsExporter) persistEmbeddings(embeddings []logEntryWithEmbed
 	}
 
 	return errors
+}
+
+func (e logEntry) embeddingBody() string {
+	var builder strings.Builder
+
+	builder.WriteString(e.body + " ")
+	builder.WriteString(e.level + " ")
+
+	return builder.String()
 }
 
 func extractLogEntries(ld plog.Logs) []logEntry {
