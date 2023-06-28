@@ -27,7 +27,7 @@ func NewRedisPersistence(host string, port string, password string, database int
 func (r *RedisPersistence) Persist(key string, properties Properties) error {
 	ctx := context.Background()
 
-	error := r.rdb.HSet(ctx, key, properties).Err()
+	error := r.rdb.HSet(ctx, key, map[string]interface{}(properties)).Err()
 	if error != nil {
 		return error
 	}
