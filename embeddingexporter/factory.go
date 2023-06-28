@@ -55,7 +55,7 @@ func (c *container) createTracesExporter(
 	config component.Config) (exporter.Traces, error) {
 	cfg := config.(*Config)
 	c.initialize(cfg)
-	x := newEmbeddingExporter(c.embedding, c.persistence)
+	x := newEmbeddingTracesExporter(c.embedding, c.persistence)
 	return exporterhelper.NewTracesExporter(ctx, set, cfg,
 		x.pushTraces,
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
