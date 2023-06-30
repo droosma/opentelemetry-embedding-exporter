@@ -14,10 +14,14 @@ The following commands should be available within the `devcontainer`:
   Starts a new debug session with the `dlv` debugger. This will start the exporter and wait for a debugger to attach.
 - run
 
-  Starts the exporter without a debugger attached.
+  Builds and starts the collector without a debugger attached.
 - build
 
-  Builds the exporter binary.
+  Builds the collector binary.
+
+- setenv
+
+  reads the `.env` file and sets the environment variables.
 
 ## Tips
 

@@ -11,7 +11,7 @@ exporters:
   embeddingexporter:
     verbosity: detailed
     embedding:
-      key: ""
+      key: ${env:OpenAIEmbeddingKey}
       endpoint: "https://rg-openai-sandbox.openai.azure.com/"
       model_mapping:
         text-embedding-ada-002: "embedding"
