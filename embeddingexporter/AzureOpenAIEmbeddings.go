@@ -6,11 +6,11 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-type OpenAIEmbeddings struct {
+type AzureOpenAIEmbeddings struct {
 	client *openai.Client
 }
 
-func NewOpenAIEmbeddings(key string, baseUri string, modelMapping map[string]string, version string) *OpenAIEmbeddings {
+func NewAzureOpenAIEmbeddings(key string, baseUri string, modelMapping map[string]string, version string) *AzureOpenAIEmbeddings {
 	if version == "" {
 		version = "2023-05-15"
 	}
@@ -20,10 +20,10 @@ func NewOpenAIEmbeddings(key string, baseUri string, modelMapping map[string]str
 	config.AzureModelMapperFunc = func(model string) string {
 		return modelMapping[model]
 	}
-	return &OpenAIEmbeddings{client: openai.NewClientWithConfig(config)}
+	return &AzureOpenAIEmbeddings{client: openai.NewClientWithConfig(config)}
 }
 
-func (o *OpenAIEmbeddings) Generate(input string) (Embedding, error) {
+func (o *AzureOpenAIEmbeddings) Generate(input string) (Embedding, error) {
 	resp, err := o.client.CreateEmbeddings(
 		context.Background(),
 		openai.EmbeddingRequest{

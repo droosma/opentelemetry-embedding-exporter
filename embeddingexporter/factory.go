@@ -31,7 +31,7 @@ func (c *container) initialize(cfg *Config) {
 		}
 
 		embedding := func(config EmbeddingConfig) Embeddings {
-			return NewOpenAIEmbeddings(config.Key, config.Endpoint, config.ModelMapping, config.Version)
+			return NewAzureOpenAIEmbeddings(config.Key, config.Endpoint, config.ModelMapping, config.Version)
 		}
 
 		c.embedding = embedding(cfg.Embedding)
