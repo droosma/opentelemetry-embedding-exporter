@@ -1,0 +1,16 @@
+{
+	"name": "Go",
+	"image": "mcr.microsoft.com/devcontainers/go:0-1-bullseye",
+
+	"forwardPorts": [4317,4318],
+
+	"postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+
+	"customizations": {
+		"vscode": {
+            "extensions": [
+                "GitHub.copilot",
+                "github.vscode-github-actions"
+            ]
+	}
+}
