@@ -13,10 +13,10 @@ type Config struct {
 }
 
 type EmbeddingConfig struct {
-	Endpoint     string            `mapstructure:"endpoint"`
-	Key          string            `mapstructure:"key"`
-	Version      string            `mapstructure:"version"`
-	ModelMapping map[string]string `mapstructure:"model_mapping"`
+	Endpoint string `mapstructure:"endpoint"`
+	Key      string `mapstructure:"key"`
+	Version  string `mapstructure:"version"`
+	ModelId  string `mapstructure:"model_id"`
 }
 
 type PersistenceConfig struct {
@@ -32,6 +32,9 @@ func (cfg *Config) Validate() error {
 	}
 	if cfg.Embedding.Key == "" {
 		return fmt.Errorf("embedding key is required")
+	}
+	if cfg.Embedding.ModelId == "" {
+		return fmt.Errorf("embedding model_id is required")
 	}
 
 	if cfg.Persistence.Host == "" {

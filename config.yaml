@@ -13,8 +13,7 @@ exporters:
     embedding:
       key: ${env:OpenAIEmbeddingKey}
       endpoint: "https://rg-openai-sandbox.openai.azure.com/"
-      model_mapping:
-        text-embedding-ada-002: "embedding"
+      model_id: "embedding"
     persistence:
       host     : "host.docker.internal"
       port     : "6379"

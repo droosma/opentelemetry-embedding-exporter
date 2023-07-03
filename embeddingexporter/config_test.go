@@ -13,9 +13,7 @@ func validConfig() *Config {
 			Endpoint: "https://example.com",
 			Key:      "key",
 			Version:  "version",
-			ModelMapping: map[string]string{
-				"text-embedding-ada-002": "embedding",
-			},
+			ModelId:  "embedding",
 		},
 		Persistence: PersistenceConfig{
 			Host:     "localhost",
@@ -51,6 +49,16 @@ func TestConfig_Validate_Embedding_Key(t *testing.T) {
 	err := cfg.Validate()
 	if err == nil {
 		t.Errorf("Expected error for missing Embedding.Key, got nil")
+	}
+}
+
+func TestConfig_Validate_Embedding_ModelId(t *testing.T) {
+	cfg := validConfig()
+	cfg.Embedding.ModelId = ""
+
+	err := cfg.Validate()
+	if err == nil {
+		t.Errorf("Expected error for missing Embedding.ModelId, got nil")
 	}
 }
 

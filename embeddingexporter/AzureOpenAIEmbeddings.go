@@ -3,33 +3,35 @@ package embeddingexporter
 import (
 	"context"
 
-	openai "github.com/sashabaranov/go-openai"
+	"github.com/Azure/azure-sdk-for-go/sdk/cognitiveservices/azopenai"
 )
 
 type AzureOpenAIEmbeddings struct {
-	client *openai.Client
+	client *azopenai.Client
 }
 
-func NewAzureOpenAIEmbeddings(key string, baseUri string, modelMapping map[string]string, version string) *AzureOpenAIEmbeddings {
-	if version == "" {
-		version = "2023-05-15"
+func NewAzureOpenAIEmbeddings(key string, endpoint string, modelId string, version string) *AzureOpenAIEmbeddings {
+	cred, err := azopenai.NewKeyCredential(key)
+	if err != nil {
+		panic(err)
 	}
 
-	config := openai.DefaultAzureConfig(key, baseUri)
-	config.APIVersion = version
-	config.AzureModelMapperFunc = func(model string) string {
-		return modelMapping[model]
+	options := &azopenai.ClientOptions{}
+	client, err := azopenai.NewClientWithKeyCredential(endpoint, cred, modelId, options)
+
+	if err != nil {
+		panic(err)
 	}
-	return &AzureOpenAIEmbeddings{client: openai.NewClientWithConfig(config)}
+
+	return &AzureOpenAIEmbeddings{client: client}
 }
 
 func (o *AzureOpenAIEmbeddings) Generate(input string) (Embedding, error) {
-	resp, err := o.client.CreateEmbeddings(
-		context.Background(),
-		openai.EmbeddingRequest{
-			Input: []string{input},
-			Model: openai.AdaEmbeddingV2,
-		})
+	ctx := context.Background()
+	body := azopenai.EmbeddingsOptions{
+		Input: []string{input},
+	}
+	resp, err := o.client.GetEmbeddings(ctx, body, nil)
 
 	if err != nil {
 		return nil, err
