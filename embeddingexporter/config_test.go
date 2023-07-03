@@ -14,14 +14,12 @@ func validConfig() *Config {
 			Key:      "key",
 			Version:  "version",
 			ModelMapping: map[string]string{
-				"gpt-3.5-turbo":          "turbo",
 				"text-embedding-ada-002": "embedding",
 			},
 		},
 		Persistence: PersistenceConfig{
 			Host:     "localhost",
 			Port:     "6379",
-			Password: "password",
 			Database: 0,
 		},
 	}

@@ -115,12 +115,12 @@ func (c *container) createLogsExporter(
 		exporterhelper.WithCapabilities(consumer.Capabilities{MutatesData: false}),
 		exporterhelper.WithTimeout(exporterhelper.TimeoutSettings{Timeout: 5}),
 		exporterhelper.WithRetry(exporterhelper.RetrySettings{
-			Enabled:         true,
+			Enabled:         false,
 			InitialInterval: 5,
 			MaxInterval:     30,
 		}),
 		exporterhelper.WithQueue(exporterhelper.QueueSettings{
-			Enabled:   true,
+			Enabled:   false,
 			QueueSize: 1000,
 		}),
 	)
