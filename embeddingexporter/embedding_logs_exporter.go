@@ -40,7 +40,7 @@ func (s *embeddingLogsExporter) pushLogs(_ context.Context, ld plog.Logs) error 
 	return nil
 }
 
-func (e logEntry) toLogEntryWithEmbedding(embedding []float32) logEntryWithEmbedding {
+func (e logEntry) toLogEntryWithEmbedding(embedding Embedding) logEntryWithEmbedding {
 	return logEntryWithEmbedding{
 		logEntry:  e,
 		embedding: embedding,
@@ -58,7 +58,7 @@ type logEntry struct {
 
 type logEntryWithEmbedding struct {
 	logEntry  logEntry
-	embedding []float32
+	embedding Embedding
 }
 
 func (s *embeddingLogsExporter) generateEmbeddingForLogEntries(entries []logEntry) ([]logEntryWithEmbedding, []error) {

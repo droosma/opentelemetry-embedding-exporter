@@ -52,7 +52,7 @@ type traceEntry struct {
 	SpanId     string
 }
 
-func (e traceEntry) toTraceEntryWithEmbedding(embedding []float32) traceEntryWithEmbedding {
+func (e traceEntry) toTraceEntryWithEmbedding(embedding Embedding) traceEntryWithEmbedding {
 	return traceEntryWithEmbedding{
 		traceEntry: e,
 		embedding:  embedding,
@@ -77,7 +77,7 @@ func (e traceEntry) embeddingBody() string {
 
 type traceEntryWithEmbedding struct {
 	traceEntry traceEntry
-	embedding  []float32
+	embedding  Embedding
 }
 
 func (s *embeddingTracesExporter) generateEmbeddingForTraceEntries(entries []traceEntry) ([]traceEntryWithEmbedding, []error) {
