@@ -18,6 +18,9 @@ exporters:
       host     : "host.docker.internal"
       port     : "6379"
       password : ""
+    publisher:
+      enabled: true
+      connection_string: ${env:AzureEventHubConnectionString}
   logging:
     verbosity: detailed
 

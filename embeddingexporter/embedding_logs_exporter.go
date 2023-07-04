@@ -14,27 +14,33 @@ import (
 type embeddingLogsExporter struct {
 	embedding   Embeddings
 	persistence Persistence
+	publisher   Publisher
 }
 
-func newEmbeddingLogsExporter(e Embeddings, p Persistence) *embeddingLogsExporter {
+func newEmbeddingLogsExporter(e Embeddings, p Persistence, pu Publisher) *embeddingLogsExporter {
 	return &embeddingLogsExporter{
 		embedding:   e,
 		persistence: p,
+		publisher:   pu,
 	}
 }
 
 func (s *embeddingLogsExporter) pushLogs(_ context.Context, ld plog.Logs) error {
 	entries := extractLogEntries(ld)
-	embeddings, embeddingsErrors := s.generateEmbeddingForLogEntries(entries)
+	embeddings, errors := s.generateEmbeddingForLogEntries(entries)
 
-	if embeddingsErrors != nil {
-		return embeddingsErrors[0]
+	if errors != nil {
+		return errors[0]
 	}
 
-	persistenceErrors := s.persistEmbeddings(embeddings)
+	errors = s.persistEmbeddings(embeddings)
+	if errors != nil {
+		return errors[0]
+	}
 
-	if persistenceErrors != nil {
-		return persistenceErrors[0]
+	err := s.publisher.Publish(embeddings)
+	if err != nil {
+		return err
 	}
 
 	return nil

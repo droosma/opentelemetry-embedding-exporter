@@ -10,6 +10,7 @@ type Config struct {
 	Verbosity   configtelemetry.Level `mapstructure:"verbosity,omitempty"`
 	Embedding   EmbeddingConfig       `mapstructure:"embedding"`
 	Persistence PersistenceConfig     `mapstructure:"persistence"`
+	Publisher   PublisherConfig       `mapstructure:"publisher, omitempty"`
 }
 
 type EmbeddingConfig struct {
@@ -24,6 +25,11 @@ type PersistenceConfig struct {
 	Port     string `mapstructure:"port"`
 	Password string `mapstructure:"password"`
 	Database int    `mapstructure:"database"`
+}
+
+type PublisherConfig struct {
+	Enabled          bool   `mapstructure:"enabled"`
+	ConnectionString string `mapstructure:"connection_string"`
 }
 
 func (cfg *Config) Validate() error {
@@ -42,6 +48,10 @@ func (cfg *Config) Validate() error {
 	}
 	if cfg.Persistence.Port == "" {
 		return fmt.Errorf("persistence port is required")
+	}
+
+	if cfg.Publisher.Enabled && cfg.Publisher.ConnectionString == "" {
+		return fmt.Errorf("publisher connection string is required")
 	}
 
 	return nil
